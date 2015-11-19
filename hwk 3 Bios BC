@@ -1,25 +1,42 @@
-Austin <- matrix(c(0.53, 0.35, 0.12, 0.48, 0.35, 0.17), nrow = 2, byrow = T)
-dimnames(Austin) = list(Author = c("JA", "unknown"), Words = c("An", "That", "This"))
-Austin
-chisq.test(Austin, correct = T)
+par(mfrow=c(1,2))
+set.seed(0)
+sd_n <- sqrt(0.05*(1-0.05))
 
+mu <- 0.05
 
-Drugs <- matrix(c(80,15,5,60,30,10), nrow= 2, byrow = T)
-dimnames(Drugs) <- list(Drug=c("A","B"), SideEffs=c("None","Nausea", "N&V"))
-Drugs
-chisq.test(Drugs)
+samples <- replicate(1000, mean(rnorm(1000, sd = sd_n, mean = mu)))
+hist(samples, xlim=c(0.0,0.15), ylim=c(0,60), prob = T, border = F, col="tan")
+d_n <- density(samples)
+lines(d_n, col="gray40", lwd = 2)
 
-addresses <- c(275,	183,	133,	111,	76,	66,	66,	44,	46)
-addresses <- addresses/sum(addresses)
-Digits <- matrix(c(0.301,	0.176,	0.125,	0.097,	0.079,	0.067,	0.058,	0.051,	0.046,
- addresses), nrow=2, byrow=T)
-dimnames(Digits) <- list(c("Benford", "Address"), Digit = c(1,2,3,4,5,6,7,8,9))
-Digits
-chisq.test(Digits)
+(mean(samples))
+(sd(samples))
+(se <- sqrt(0.05*(1-0.05)/384))
 
+sd_a <- sqrt(0.12*(1-0.12))
+mu_a <- 0.12
+samples_a <- replicate(1000, mean(rnorm(1000, sd = sd_a, mean = mu_a)))
+d_a <- density(samples_a)
+hist(samples_a, add=T, col="beige", border=F, prob=T)
+lines(d_a, col="gray40", lwd = 2)
 
-Jobs <- matrix(c(65,35,70,30,15,85), nrow=3, byrow=T)
-dimnames(Jobs) <- list(Job=c("Executive", "Professor", "Lion Tamer"), Stress = c("High", "Low"))
-Jobs
+points(0.12,0, col="red", pch = 20)
+points(0.05, 0, col="blue", pch = 20)
 
-chisq.test(Jobs)
+arrows(0.05,0, 0.05 + se,0, col="blue", lwd=2)
+arrows(0.05 + sd(samples),0, 0.05 + 2*se,0, col="blue", lwd=2)
+arrows(0.05 + 2*se,0, 0.05 + 3*se,0, col="blue", lwd=2)
+arrows(0.05 + 3*se,0, 0.05 + 4*se,0, col="blue", lwd=2)
+arrows(0.05 + 4*se,0, 0.05 + 5*se,0, col="blue", lwd=2)
+arrows(0.05 + 5*se,0, 0.05 + 6*se,0, col="blue", lwd=2)
+
+hist(samples, xlim=c(0.0,0.15), ylim=c(0,60), prob = T, border = F, col="tan")
+d_n <- density(samples)
+lines(d_n, col="gray40", lwd = 2)
+hist(samples_a, add=T, col="beige", border=F, prob=T)
+lines(d_a, col="gray40", lwd = 2)
+arrows(0.12,0, 0.08,0, col="red", lwd=2)
+arrows(0.12,0, 0.15,0, col="red", lwd=2)
+points(0.12,0, col="red", pch = 20)
+points(0.05, 0, col="blue", pch = 20)
+
