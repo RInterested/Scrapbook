@@ -1,7 +1,6 @@
 set.seed(0)
 n <- 384
 mu <- 0.05
-sd_n <- sqrt(n*0.05*(1-0.05))
 
 
 samples <- replicate(1000, rbinom(1, size = n, prob= mu)/n)
