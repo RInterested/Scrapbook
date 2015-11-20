@@ -1,10 +1,12 @@
-par(mfrow=c(1,1))
 set.seed(0)
-sd_n <- sqrt(0.05*(1-0.05))
-
+n <- 384
 mu <- 0.05
+sd_n <- sqrt(n*0.05*(1-0.05))
 
-samples <- replicate(1000, mean(rnorm(1000, sd = sd_n, mean = mu)))
+
+samples <- replicate(1000, rbinom(1, size = n, prob= mu)/n)
+mean(samples)
+sd(samples)
 
 hist(samples, xlim=c(0.0,0.15), ylim=c(0,60), prob = T, border = F, col="tan",
      main = "Standard Errors Away From Population", xlab="population")
@@ -14,7 +16,7 @@ lines(d_n, col="darkred", lty = 3)
 
 (mean(samples))
 (sd(samples))
-(se <- sqrt(0.05*(1-0.05)/384))
+(se <- sqrt(0.05*(1-0.05)/n))
 
 sd_a <- sqrt(0.12*(1-0.12))
 mu_a <- 0.12
