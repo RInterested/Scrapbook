@@ -1,0 +1,20 @@
+sample_means <- replicate(1000, mean(rchisq(n, df = 1)))
+
+mean <- 0
+se <- 0
+for (i in 1:1000){
+n <- 10
+sample <- rchisq(n, df = 1)
+mean[i] <- mean(sample)
+se[i] <- sd(sample)/sqrt(n)
+}
+ts <- (mean - 1)/se
+ts <- ts[ts<10 & ts>-5]
+hist(ts, probability = T, xlim=c(-5,5))
+lines(density(ts), lwd = 4, col = 4, lty = 2)
+
+x <- seq(-5, 10, by=0.01)
+lines(dt(x, n - 1) ~ x , lw = 3, col = 9, lty = 2)
+
+text(c(-2.5,-3),c(0.3,0.1),labels=c("t distribution","t test"), 
+     col=c("black", 4))
