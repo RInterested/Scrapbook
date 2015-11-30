@@ -1,3 +1,4 @@
+set.seed(1)
 sample_means <- replicate(1000, mean(rchisq(n, df = 1)))
 
 mean <- 0
