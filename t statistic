@@ -1,14 +1,26 @@
+# Goes with this question: http://stats.stackexchange.com/q/184204/67822
+
+# From a chi square population:
+
+set.seed(99)
+
 mean <- 0
 se <- 0
 for (i in 1:1000){
-n <- 10
-sample <- rchisq(n, df = 1)
-mean[i] <- mean(sample)
-se[i] <- sd(sample)/sqrt(n)
+    n <- 10
+    sample <- rchisq(n, df = 1)
+    mean[i] <- mean(sample)
+    se[i] <- sd(sample)/sqrt(n)
 }
 ts <- (mean - 1)/se
 ts <- ts[ts<10 & ts>-5]
-hist(ts, probability = T, xlim=c(-5,5))
+hist(ts, probability = T, 
+     xlim=c(-5,5), ylim=c(0,0.4),
+     main = "Distribution of t-tests v. t-distribution",
+     border = F,
+     col = 'gray80')
+     mtext("Chi Squared Population", col="gray50")
+     
 lines(density(ts), lwd = 4, col = 4, lty = 2)
 
 x <- seq(-5, 10, by=0.01)
@@ -29,7 +41,12 @@ for (i in 1:1000){
 }
 ts <- (mean - 0)/se
 ts <- ts[ts<10 & ts>-5]
-hist(ts, probability = T, xlim=c(-5,5), ylim=c(0,0.4))
+hist(ts, probability = T, 
+     xlim=c(-5,5), ylim=c(0,0.4),
+     main = "Distribution of t-tests v. t-distribution",
+     border = F,
+     col = 'gray80')
+     mtext("Normal Population", col = 'gray50')
 lines(density(ts), lwd = 4, col = 4, lty = 2)
 
 x <- seq(-5, 10, by=0.01)
