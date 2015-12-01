@@ -2,6 +2,10 @@
 
 # From a chi square population:
 
+# Goes with this question: http://stats.stackexchange.com/q/184204/67822
+
+# From a chi square population:
+
 set.seed(99)
 
 mean <- 0
@@ -19,8 +23,8 @@ hist(ts, probability = T,
      main = "Distribution of t-tests v. t-distribution",
      border = F,
      col = 'gray80')
-     mtext("Chi Squared Population", col="gray50")
-     
+mtext("Chi Squared Population", col="gray50")
+
 lines(density(ts), lwd = 4, col = 4, lty = 2)
 
 x <- seq(-5, 10, by=0.01)
@@ -46,7 +50,7 @@ hist(ts, probability = T,
      main = "Distribution of t-tests v. t-distribution",
      border = F,
      col = 'gray80')
-     mtext("Normal Population", col = 'gray50')
+mtext("Normal Population", col = 'gray50')
 lines(density(ts), lwd = 4, col = 4, lty = 2)
 
 x <- seq(-5, 10, by=0.01)
