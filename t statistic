@@ -2,10 +2,6 @@
 
 # From a chi square population:
 
-# Goes with this question: http://stats.stackexchange.com/q/184204/67822
-
-# From a chi square population:
-
 set.seed(99)
 
 mean <- 0
