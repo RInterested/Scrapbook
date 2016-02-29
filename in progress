@@ -6,13 +6,13 @@ paragr4 <- c("At a press conference in Fort Worth, Texas on February 26th, Mr Ch
 paragr5 <- c("I do hope our friends in the United States will accept that FIFA has promised these reforms, is doing these reforms, and that they will let us work in peace, Sepp Blatter, the longtime FIFA president whose tenure came to an inglorious end under the weight of the corruption scandal, said in an interview after the new rules passed.")
 
 count_vectors = function(paragr){
-    pr <- strsplit(paragr, "[.,!?] *")
-    split_words <- function(x) strsplit(x,split=" ")
-    pr <- do.call(split_words, pr)
-    pr = Reduce(c, pr)
-    freq_pr = table(pr)
-    count = sort(freq_pr, decreasing = T)
-    return(list("paragraph" = pr, "counts" =count))
+  pr <- strsplit(paragr, "[.,!?] *")
+  split_words <- function(x) strsplit(x,split=" ")
+  pr <- do.call(split_words, pr)
+  pr = Reduce(c, pr)
+  freq_pr = table(pr)
+  count = sort(freq_pr, decreasing = T)
+  return(list("paragraph" = pr, "counts" =count))
 }
 
 
@@ -21,46 +21,44 @@ pr2 <- count_vectors(paragr2)
 pr3 <- count_vectors(paragr3)
 pr4 <- count_vectors(paragr4)
 pr5 <- count_vectors(paragr5)
-newdf1 <- data.frame(Word = names(pr1$counts), Count = as.vector(t(pr1$counts)))
 
 ###TERM FREQUENCY (tf)
+
 combo_vec <- function(prx, pry, prz, prv, prw){
-    prx_counts <- t(as.matrix(prx$counts))
-    pry_counts <- t(as.matrix(pry$counts))
-    prz_counts <- t(as.matrix(prz$counts))
-    prv_counts <- t(as.matrix(prv$counts))
-    prw_counts <- t(as.matrix(prw$counts))
-    for (i in colnames(prx_counts)){
-        prx_counts[1,i] <- prx_counts[1,i]
-    }
-    pry_counts[1,] = 0; prz_counts[1,] = 0; prv_counts[1,] = 0; prw_counts[1,] = 0
-    tfx = cbind(prx_counts, pry_counts, prz_counts, prv_counts, prw_counts)
-    tfx
+  prx_counts <- t(as.matrix(prx$counts))
+  pry_counts <- t(as.matrix(pry$counts))
+  prz_counts <- t(as.matrix(prz$counts))
+  prv_counts <- t(as.matrix(prv$counts))
+  prw_counts <- t(as.matrix(prw$counts))
+  for (i in colnames(prx_counts)){
+    prx_counts[1,i] <- prx_counts[1,i]
+  }
+  pry_counts[1,] = 0; prz_counts[1,] = 0; prv_counts[1,] = 0; prw_counts[1,] = 0
+  tfx = cbind(prx_counts, pry_counts, prz_counts, prv_counts, prw_counts)
+  tfx
 }
-combo_vec(pr1,pr2,pr3,pr4,pr5)
+tc_pr1 = combo_vec(pr1,pr2,pr3,pr4,pr5)
+tc_pr1 = as.data.frame(tc_pr1)
+tf = tc_pr1[ , !duplicated(colnames(tc_pr1))]
+length(tc_pr1)
 
 
-##INVERSE DOCUMENT FREQUENCY: WORK IN PROGRESS!!!
 
-library(dplyr)
-newdf1 <- data.frame(Word = names(pr1$counts), Count = as.vector(t(pr1$counts)))
-newdf2 <- data.frame(Word = names(pr2$counts), Count = as.vector(t(pr2$counts)))
-df <- rbind(newdf1,newdf2)
-result <- df %>% group(Word) %>% summarise(Count = sum(Count))
+##INVERSE DOCUMENT FREQUENCY: 
 
-idf <- function(prx, pry, prz, prv, prw){
-    newdf1 <- data.frame(Word = colnames(prx), Count = as.vector(t(prx)))
-    newdf2 <- data.frame(Word = colnames(pry), Count = as.vector(t(pry)))
-    prx_counts <- t(as.matrix(prx$counts))
-    pry_counts <- t(as.matrix(pry$counts))
-    prz_counts <- t(as.matrix(prz$counts))
-    prv_counts <- t(as.matrix(prv$counts))
-    prw_counts <- t(as.matrix(prw$counts))
-    all = cbind(prx_counts, pry_counts, prz_counts, prv_counts, prw_counts)
-    log(  unique(colnames(all)) / (1  + all)   )
-         combined  <-  prx_counts
-         combined[,order(combined[1,], decreasing = T)]
+V = c(names(pr1$counts),names(pr2$counts), names(pr3$counts), names(pr4$counts), names(pr5$counts))
+
+total_count <- vector()
+for(i in unique(V)){
+  docs_with_word = sum(i == V)
+  total_count[i] <- docs_with_word
 }
+names(total_count) = unique(V)
+length(total_count)
+
+idf = log(5/total_count)
 
 
+##IMPORTANT WORDS:
 
+t(idf) * tf
