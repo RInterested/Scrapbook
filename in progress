@@ -1,53 +1,66 @@
-set.seed(0)
-n <- 384
-mu <- 0.05
+paragr1 <- c("Having staked his presidential hopes on the New Hampshire primary only to finish in sixth place, and facing the end of a so-far disastrous second term as governor, Mr. Christie needs a new job. Perhaps he's hitching his ambitions to Mr. Trump because he's promised to make him a winner, like Mr. Trump promises America. Mr. Trump, at least, has managed to do what Mr. Christie couldn't: hoodwink his way to the front of the Republican presidential pack.")
+paragr2 <- c("Addressing a luncheon of Republican governors and donors in Washington on Feb. 19, he warned that Donald J. Trump's increasingly likely nomination would be catastrophic, dooming the party in November. But Mr. Rove, the master strategist of George W. Bush's campaigns, insisted it was not too late for them to stop Mr. Trump, according to three people present.")
+paragr3 <- c("In the span of a few hours across Texas, Mr. Rubio suggested that Mr. Trump had urinated in his trousers and used illegal immigrants to tap out his unceasing Twitter messages. Mr. Trump countered by suggesting that Mr. Rubio's excessive perspiration had no place in the White House and brandishing a water bottle to mock the senator's chronic thirst.")
+paragr4 <- c("At a press conference in Fort Worth, Texas on February 26th, Mr Christie endorsed Donald Trump. He described Mr Trump as the candidate who would provide the strongest leadership for America. For his part Mr Trump said that Mr Christie had been my friend for many years, he's been a spectacular governor. On the day after his previous use of immigrant labourers, alleged involvement with a phony university, and other embarrassments, dominated a televised debate, Mr Trump will doubtless be grateful for Mr Christie's timing, as well as for his support.")
+# Now sports:
+paragr5 <- c("I do hope our friends in the United States will accept that FIFA has promised these reforms, is doing these reforms, and that they will let us work in peace, Sepp Blatter, the longtime FIFA president whose tenure came to an inglorious end under the weight of the corruption scandal, said in an interview after the new rules passed.")
+
+count_vectors = function(paragr){
+    pr <- strsplit(paragr, "[.,!?] *")
+    split_words <- function(x) strsplit(x,split=" ")
+    pr <- do.call(split_words, pr)
+    pr = Reduce(c, pr)
+    freq_pr = table(pr)
+    count = sort(freq_pr, decreasing = T)
+    return(list("paragraph" = pr, "counts" =count))
+}
 
 
-samples <- replicate(1000, rbinom(1, size = n, prob= mu)/n)
-mean(samples)
-sd(samples)
+pr1 <- count_vectors(paragr1)
+pr2 <- count_vectors(paragr2)
+pr3 <- count_vectors(paragr3)
+pr4 <- count_vectors(paragr4)
+pr5 <- count_vectors(paragr5)
+newdf1 <- data.frame(Word = names(pr1$counts), Count = as.vector(t(pr1$counts)))
 
-hist(samples, xlim=c(0.0,0.15), ylim=c(0,60), prob = T, border = F, col="tan",
-     main = "Standard Errors Away From Population", xlab="population")
-
-d_n <- density(samples)
-lines(d_n, col="darkred", lty = 3)
-
-(mean(samples))
-(sd(samples))
-(se <- sqrt(0.05*(1-0.05)/n))
-
-sd_a <- sqrt(0.12*(1-0.12))
-mu_a <- 0.12
-samples_a <- replicate(1000, mean(rnorm(1000, sd = sd_a, mean = mu_a)))
-d_a <- density(samples_a)
-
-
-
-
-arrows(0.05,-0.8, 0.05 + se,-0.8, col="darkorange4", lwd=2, angle=15)
-arrows(0.05 + se,-0.8, 0.05 + 2*se,-0.8, col="darkorange4", lwd=2, angle=15)
-arrows(0.05 + 2*se,-0.8, 0.05 + 3*se,-0.8, col="darkorange4", lwd=2, angle=15)
-arrows(0.05 + 3*se,-0.8, 0.05 + 4*se,-0.8, col="darkorange4", lwd=2, angle=15)
-arrows(0.05 + 4*se,-0.8, 0.05 + 5*se,-0.8, col="darkorange4", lwd=2, angle=15)
-arrows(0.05 + 5*se,-0.8, 0.05 + 6*se,-0.8, col="darkorange4", lwd=2, angle=15)
-
-points(0.12,-0.8, col="red", pch = 19, cex=1.5)
-points(0.05, -0.8, col="black", pch = 19, cex = 1.5)
-
-text(0.05,2, labels="Pop. Proportion",col="black",cex=0.7)
-text(0.12,2, labels="Sample Proportion",col="red",cex=0.7)
+###TERM FREQUENCY (tf)
+combo_vec <- function(prx, pry, prz, prv, prw){
+    prx_counts <- t(as.matrix(prx$counts))
+    pry_counts <- t(as.matrix(pry$counts))
+    prz_counts <- t(as.matrix(prz$counts))
+    prv_counts <- t(as.matrix(prv$counts))
+    prw_counts <- t(as.matrix(prw$counts))
+    for (i in colnames(prx_counts)){
+        prx_counts[1,i] <- prx_counts[1,i]
+    }
+    pry_counts[1,] = 0; prz_counts[1,] = 0; prv_counts[1,] = 0; prw_counts[1,] = 0
+    tfx = cbind(prx_counts, pry_counts, prz_counts, prv_counts, prw_counts)
+    tfx
+}
+combo_vec(pr1,pr2,pr3,pr4,pr5)
 
 
-hist(samples_a, xlim=c(0.0,0.15), ylim=c(0,45), col="burlywood1", border=F, prob=T,
-     main = "Confidence Interval Around Sample", xlab = "samples")
-lines(d_a, col="darkred", lwd = 1, lty=3)
-arrows(0.12,-0.8, 0.08,-0.8, col="darkorange", lwd=2, angle=15)
-arrows(0.12,-0.8, 0.15,-0.8, col="darkorange", lwd=2, angle=15)
+##INVERSE DOCUMENT FREQUENCY: WORK IN PROGRESS!!!
+
+library(dplyr)
+newdf1 <- data.frame(Word = names(pr1$counts), Count = as.vector(t(pr1$counts)))
+newdf2 <- data.frame(Word = names(pr2$counts), Count = as.vector(t(pr2$counts)))
+df <- rbind(newdf1,newdf2)
+result <- df %>% group(Word) %>% summarise(Count = sum(Count))
+
+idf <- function(prx, pry, prz, prv, prw){
+    newdf1 <- data.frame(Word = colnames(prx), Count = as.vector(t(prx)))
+    newdf2 <- data.frame(Word = colnames(pry), Count = as.vector(t(pry)))
+    prx_counts <- t(as.matrix(prx$counts))
+    pry_counts <- t(as.matrix(pry$counts))
+    prz_counts <- t(as.matrix(prz$counts))
+    prv_counts <- t(as.matrix(prv$counts))
+    prw_counts <- t(as.matrix(prw$counts))
+    all = cbind(prx_counts, pry_counts, prz_counts, prv_counts, prw_counts)
+    log(  unique(colnames(all)) / (1  + all)   )
+         combined  <-  prx_counts
+         combined[,order(combined[1,], decreasing = T)]
+}
 
 
-points(0.12,-0.8, col="red", pch = 19, cex=1.5)
-points(0.05, -0.8, col="black", pch = 19, cex = 1.5)
 
-text(0.05,2, labels="Pop. Proportion",col="black",cex=0.7)
-text(0.12,2, labels="Sample Proportion",col="red",cex=0.7)
