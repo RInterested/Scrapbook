@@ -3,7 +3,7 @@ set.seed(14)
 data <- iris[order(runif(nrow(iris))), ]
 rownames(data) <- NULL
 
-training_rows <- sample(1:nrow(data), round(0.80 * nrow(data)))
+training_rows <- sample(1:nrow(data), round(0.60 * nrow(data)))
 
 data_train <- data[training_rows, ]
 nrow(data_train)
@@ -14,16 +14,18 @@ k = (round(round(sqrt(nrow(iris)))/2) * 2) + 1
 
 
 knn_manual <- function(dat, k){
-nearest_neighbors = function(x, y){
-  (sum((x - y)^2))^(1/(length(x)))
-}
+            nearest_neighbors = function(x, y){
+            (sum((x - y)^2))^(1/(length(x)))
+            }
 
-rownames(dat) <- NULL
+    rownames(dat) <- NULL
 
-vote <- rep(0, nrow(dat))
-for(j in 1: nrow(dat)){
-  df = rbind(dat[j, ], dat[-j,])
-  rownames(df) <- NULL
+    vote <- rep(0, nrow(dat))
+
+    for(j in 1: nrow(dat)){
+  
+    df = rbind(dat[j, ], dat[-j,])
+    rownames(df) <- NULL
     
     dist <- rep(0, nrow(df))
     for(i in 2:(nrow(df) - 1)){
