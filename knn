@@ -1,40 +1,51 @@
+set.seed(14)
+
+data <- iris[order(runif(nrow(iris))), ]
+rownames(data) <- NULL
+
+training_rows <- sample(1:nrow(data), round(0.80 * nrow(data)))
+
+data_train <- data[training_rows, ]
+nrow(data_train)
+data_test <- data[-training_rows, ]
+nrow(data_test)
+
+k = (round(round(sqrt(nrow(iris)))/2) * 2) + 1
+
+
+knn <- function(dat, k){
+nearest_neighbors = function(x, y){
+  (sum((x - y)^2))^(1/(length(x)))
+}
+
+rownames(dat) <- NULL
+
+vote <- rep(0, nrow(dat))
+for(j in 1: nrow(dat)){
+  df = rbind(dat[j, ], dat[-j,])
+  rownames(df) <- NULL
+    
+    dist <- rep(0, nrow(df))
+    for(i in 2:(nrow(df) - 1)){
+    dist[i] <- nearest_neighbors(df[1, 1:4], df[i, 1:4])
+    }
+    
+  friends = df[order(dist), ]
+  tab = table(friends[2:(k+1), 5])
+  ifelse(sum(tab == max(tab)) > 1,
+         vote[j] <- sample(dimnames(tab)[[1]][tab == max(tab)], 1),        
+         vote[j] <- dimnames(tab)[[1]][which.max(tab)])
+}
+print(table(vote, dat[,5]))
+}
+
+knn(data_train, k)
+knn(data_test, k)
+
+library(class)
 normalize = function(x){
   return((x - min(x))/ (max(x) - min(x)))
 }
 
 data <-as.data.frame(apply(iris[ , c(1:4)], 2, normalize)) # Normalized columns
-
-set.seed(14)
-
-training_rows <- sample(1:nrow(data), round(0.80 * nrow(data)))
-data_train <- data[training_rows, ]
-data_test <- data[-training_rows,]
-data_train_target <- iris[training_rows, 5]
-data_test_target <- iris[-training_rows , 5]
-
-nearest_neighbors = function(x, y){
-  (sum((x - y)^2))^(1/(length(x)))
-}
-
-(k = (round(round(sqrt(nrow(iris)))/2) * 2) + 1)
-
-rownames(data_train) <- NULL
-
-vote <- rep(0, nrow(data_train))
-for(j in 1: nrow(data_train)){
-  df = rbind(data_train[j, ], data_train[-j,])
-  rownames(df) <- NULL
-    dist <- rep(0, nrow(df))
-    for(i in 1:(nrow(df) - 1)){
-    dist[i + 1] <- nearest_neighbors(df[i,], df[i + 1, ])
-    }
-  tab = table(data_train_target[order(dist)][2:(k+1)])
-  ifelse(sum(tab == max(tab)) > 1,
-         vote[j] <- sample(dimnames(tab)[[1]][tab == max(tab)], 1),        
-         vote[j] <- dimnames(tab)[[1]][which.max(tab)])
-}
-vote
-table(vote, data_train_target)
-
-library(class)
 knn(train= data_train, test = data_test, cl= data_train_target, k=13)
