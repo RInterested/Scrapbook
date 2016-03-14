@@ -13,7 +13,7 @@ nrow(data_test)
 k = (round(round(sqrt(nrow(iris)))/2) * 2) + 1
 
 
-knn <- function(dat, k){
+knn_manual <- function(dat, k){
 nearest_neighbors = function(x, y){
   (sum((x - y)^2))^(1/(length(x)))
 }
@@ -39,13 +39,12 @@ for(j in 1: nrow(dat)){
 print(table(vote, dat[,5]))
 }
 
-knn(data_train, k)
-knn(data_test, k)
+knn_manual(data_train, k)
+knn_manual(data_test, k)
+
 
 library(class)
-normalize = function(x){
-  return((x - min(x))/ (max(x) - min(x)))
-}
 
-data <-as.data.frame(apply(iris[ , c(1:4)], 2, normalize)) # Normalized columns
-knn(train= data_train, test = data_test, cl= data_train_target, k=13)
+
+fit <- knn(train= data_train[ ,1:4], test = data_test[ ,1:4], cl= data_train[,5], k=13)
+table(data_test[ ,5], fit)
