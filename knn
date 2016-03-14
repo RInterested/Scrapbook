@@ -1,37 +1,40 @@
 normalize = function(x){
-    return((x - min(x))/ (max(x) - min(x)))
+  return((x - min(x))/ (max(x) - min(x)))
 }
-data(iris)
-iris_norm <-apply(iris[ , c(1:4)], 2, normalize) # Normalized columns
 
-training_rows <- sample(1:nrow(iris), round(0.80 * nrow(iris)))
-iris_train <- iris_norm[training_rows, ]
-iris_test <- iris_norm[-training_rows,]
-iris_train_target <- iris[training_rows, 5]
-iris_test_target <- iris[-training_rows , 5]
+data <-as.data.frame(apply(iris[ , c(1:4)], 2, normalize)) # Normalized columns
+
+set.seed(14)
+
+training_rows <- sample(1:nrow(data), round(0.80 * nrow(data)))
+data_train <- data[training_rows, ]
+data_test <- data[-training_rows,]
+data_train_target <- iris[training_rows, 5]
+data_test_target <- iris[-training_rows , 5]
 
 nearest_neighbors = function(x, y){
-    (sum((x - y)^2))^(1/(length(x)))
+  (sum((x - y)^2))^(1/(length(x)))
 }
 
 (k = (round(round(sqrt(nrow(iris)))/2) * 2) + 1)
 
-rownames(iris_train) <- NULL
-vote <- rep(0, nrow(iris_train))
-for(j in 1: nrow(iris_train)){
-    df = rbind(iris_train[j, ],iris_train[-j,])
-    rownames(df) <- NULL
+rownames(data_train) <- NULL
+
+vote <- rep(0, nrow(data_train))
+for(j in 1: nrow(data_train)){
+  df = rbind(data_train[j, ], data_train[-j,])
+  rownames(df) <- NULL
     dist <- rep(0, nrow(df))
-        for(i in 1:(nrow(df) - 1)){
-        dist[i + 1] <- nearest_neighbors(df[i, 1:4], df[i + 1, 1:4])
-        }
-        tab = table(iris_train[order(dist),][2:(k+1), 5])
-        ifelse(sum(tab == max(tab)) > 1,
-        vote[j] <- sample(dimnames(tab)[[1]][tab == max(tab)], 1),        
-        vote[j] <- dimnames(tab)[[1]][which.max(tab)])
+    for(i in 1:(nrow(df) - 1)){
+    dist[i + 1] <- nearest_neighbors(df[i,], df[i + 1, ])
+    }
+  tab = table(data_train_target[order(dist)][2:(k+1)])
+  ifelse(sum(tab == max(tab)) > 1,
+         vote[j] <- sample(dimnames(tab)[[1]][tab == max(tab)], 1),        
+         vote[j] <- dimnames(tab)[[1]][which.max(tab)])
 }
 vote
-table(vote, iris_train[,5])
+table(vote, data_train_target)
 
 library(class)
-knn(train= iris_train, test = iris_test, cl= iris_train_target, k=13)
+knn(train= data_train, test = data_test, cl= data_train_target, k=13)
