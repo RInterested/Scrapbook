@@ -1,0 +1,17 @@
+# http://statistics.about.com/od/HypothesisTests/a/Example-Of-A-Chi-square-Goodness-Of-Fit-Test.htm
+
+MM = c(212, 147, 103, 50, 46, 42)
+expected_freq = rep(1/length(MM), length(MM))
+
+
+chisq.test(MM, p = expected_freq, correct = F)
+
+#Health services and payment:
+
+payers <- matrix(c(24,53,3,44,57,5,19,18,2,63,165,20,20,57,3), nrow=5, byrow=T)
+dimnames(payers) = list(Payers=c("MediC","MediA","MediCA","Commer","Self"), Service=c("CL","PCBH","BM"))
+addmargins(payers)
+
+
+chisq.test(payers)
+qchisq(p =0.95,df = 8)
