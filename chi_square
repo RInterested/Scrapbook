@@ -6,8 +6,8 @@ expected_freq = rep(1/length(MM), length(MM))
 
 chisq.test(MM, p = expected_freq, correct = F)
 
-#Health services and payment:
-
+# Health services and payment:
+# Goes with this: https://drive.google.com/file/d/0Bwl-HpVJ_5PedThxYWU1OFBtRXM/view?usp=sharing
 payers <- matrix(c(24,53,3,44,57,5,19,18,2,63,165,20,20,57,3), nrow=5, byrow=T)
 dimnames(payers) = list(Payers=c("MediC","MediA","MediCA","Commer","Self"), Service=c("CL","PCBH","BM"))
 addmargins(payers)
