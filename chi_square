@@ -15,3 +15,14 @@ addmargins(payers)
 
 chisq.test(payers)
 qchisq(p =0.95,df = 8)
+
+
+
+#################################
+library(EMT)
+observed =c(A = 26, B = 8, C = 6)
+prob =rep(1/length(observed),3)
+out <- multinomial.test(observed, prob, useChisq = FALSE, MonteCarlo = FALSE)
+plotMultinom(out)
+library(XNomial)
+xmulti(observed,prob,detail=2)
