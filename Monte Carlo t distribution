@@ -1,0 +1,88 @@
+set.seed(1)
+mean = 100
+sd = 15
+samples = matrix(rnorm(2.5e6, mean=mean, sd=sd), nrow=1e5, byrow=T)
+hist(samples[1,])
+
+# Samples of n = 9:
+
+
+nines = samples[ ,1:9]
+nines[1:4,]
+nines_ave = apply(nines, 1, function(x) mean(x))
+nines_sd = apply(nines, 1, function(x) sd(x))
+nines_var = nines_sd^2
+
+nines_Z = (nines_ave - mean)/(sd/sqrt(9))
+nines_t = (nines_ave - mean)/(nines_sd/sqrt(9))
+
+# Samples of n = 25:
+
+twfi = samples
+twfi_ave = apply(twfi, 1, function(x) mean(x))
+twfi_sd = apply(twfi, 1, function(x) sd(x))
+twfi_var = twfi_sd^2
+
+twfi_Z = (twfi_ave - mean)/(sd/sqrt(25))
+twfi_t = (twfi_ave - mean)/(twfi_sd/sqrt(25))
+
+# Cutoff limits for t-test at 0.95 significance level:
+
+nine_cut = dt(0.975, df = 8)
+twfi_cut = dt(0.975, df = 24)
+
+nines_typeone = mean(nines_t > nine_cut)
+twfi_typeone = mean(twfi_t > twfi_cut)
+
+
+# Chis:
+
+mean(nines_var)
+sd^2
+
+summary(nines_var/sd^2)
+
+nines_chi = 8 * (nines_var/sd^2)
+
+plot(density(nines_chi), col=5, lwd=6)
+x = seq(0, 30, 0.1)
+curve(dchisq(x, 8), add = T, col=2)
+
+twfi_chi =  24 * (twfi_var/sd^2)
+plot(density(twfi_chi), col=5, lwd=6)
+x = seq(0, 30, 0.1)
+curve(dchisq(x, 24), add = T, col=2)
+
+# T's:
+
+plot(density(nines_t), col=5, lwd=6)
+x = seq(-7, 7, 0.1)
+curve(dt(x, 8), add = T, col=2)
+
+plot(density(twfi_t), col=5, lwd=6)
+x = seq(-7, 7, 0.1)
+curve(dt(x, 24), add = T, col=2)
+
+### BIASed DATA:
+
+samples = matrix(rexp(2.5e6, 100), nrow=1e5, byrow=T)
+hist(samples[1,])
+mean(samples[1,])
+(true_mean = 1/100)
+
+
+twfi = samples
+twfi_ave = apply(twfi, 1, function(x) mean(x))
+twfi_sd = apply(twfi, 1, function(x) sd(x))
+twfi_var = twfi_sd^2
+exp_t = (twfi_ave - (1/100))/(twfi_sd/sqrt(25))
+
+plot(density(twfi_t))
+x = seq(-4, 4, 0.1)
+curve(dt(x, 24), add=T)
+
+twfi_chi = 24 * (twfi_var/sd^2)
+mean(twfi_var/sd^2)
+hist(twfi_chi, col=5, lwd=6, breaks=100)
+x = seq(0, 0.1, 0.01)
+curve(dchisq(x, 24), add = T, col=2)
