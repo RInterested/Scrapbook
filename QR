@@ -4,36 +4,24 @@
 # Thanks to: https://youtu.be/d-yPM-bxREs
 
 (X = matrix(c(1,1,1,1,-1.5,-0.5,0.5,1.5,2.25,0.25,0.25, 2.25,-3.275,-0.125,0.125,3.375), 
-           nrow=4, byrow=F))
+            nrow=4, byrow=F))
 
 qr(X)$qr
 
 library(pracma)
 Householder = function(A){
-  Q = diag(ncol(A))
-  for(r in 1:nrow(A)){ #We use columns but we'll define rows
-    
-    z = A[r:nrow(A), r] #Select one column at at time, BUT from diagonal down
-    
-    # We figure out the v:
-    
-    v = c(- sign(z[1]) * Norm(z) - z[1], z[2:length(z)])
-    v = v/Norm(v)
-    
-    # And we apply the Householder reflection - we left multiply the entire A
-    for(c in 1:ncol(A)){
-    A[r:nrow(A),c] = A[r:nrow(A),c] - v%*% (2* (t(v) %*% A[r:nrow(A), c]  ))
-    Q[r:nrow(Q),c] = Q[r:nrow(Q),c] - v%*% (2* (t(v) %*% Q[r:nrow(Q), c]  ))
-  }
-  }
+    Q= diag(1:nrow(A))
+    for(r in 1:(nrow(A)-1)){ #We use columns but we'll define rows
+        z = A[r:nrow(A), r] #Select one column at at time, BUT from diagonal down
+        # We figure out the v:
+        v = c(- sign(z[1]) * Norm(z) - z[1], - z[2:length(z)])
+        # And we apply the Householder reflection - we left multiply the entire A
+        I = diag(length(r:nrow(A)))
+        Q_i = I - (as.numeric(2 / (t(v) %*% v)) * (v %*% t(v)))       
+        A[r:nrow(A), ] = Q_i %*% A[r:nrow(A),]
+        Q[r:nrow(Q), ] = Q_i %*% Q[r:nrow(Q),]
+    }
+    DECOMPOSITION = list("Q"= Q, "R"= A)
+    return(DECOMPOSITION)
 }
-
 Householder(X)
-
-
-A = X
-z1 =A[1:nrow(A), 1]
-z2 =A[2:nrow(A), 2]
-v2 = c(- sign(z2[1]) * Norm(z2) - z2[1], z2[2:length(z2)])
-v2/Norm(v2)
-A[2:nrow(A),2] = A[2:nrow(A),2] - v2%*%(2*(t(v2)%*%A[2:nrow(A),2]))
