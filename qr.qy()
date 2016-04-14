@@ -1,0 +1,72 @@
+options(scipen=999)
+set.seed(13)
+(X = matrix(c(rnorm(9)), 
+            nrow=3, byrow=F))
+
+
+XQR = qr(X)
+R;XQR$qr
+hh = XQR$qr
+hh[row(hh)<= col(hh)] = 0
+diag(hh) = rho = XQR$qraux
+hh
+apply(hh,2, function(x){sum(x*x)/2})
+
+
+############################################################################################################
+
+qrx = qr(X)
+Q = qr.Q(qrx)
+
+t(Q)%*%Q
+R = qr.R(qrx)
+round(X - Q %*% R , 5)
+R; qrx$qr
+
+############################################################################################################
+
+House = function(A){
+  Q= diag(nrow(A))
+  tao = 0
+  rho = 0
+  psQ = diag(nrow(A))
+  H_mat = diag(nrow(A))
+  for(r in 1:(nrow(A))){ 
+    # We will apply Householder to progressively smaller parts of the columns in A
+    x = A[r:nrow(A), r] 
+    # We now get the vector v 
+    first = (sign(x[1]) * sqrt(sum(x^2))) +  x[1]
+    if(length(x) > 1)  {v = c(first, x[2:length(x)])}else{v = c(first)} 
+    rho[r] = first
+    # Unitary first entry of u:
+    u = v/((sign(x[1]) * sqrt(sum(x^2))) + x[1])
+    # Tao
+    t = (1 + as.numeric(t(u[2:length(u)])%*%u[2:length(u)])) / 2
+    
+    zero_vec = u/t
+    zero_vec = c(rep(0, nrow(A) - length(zero_vec)), u/t)    
+    H_mat[ ,r] = zero_vec
+    # The Householder tranformation is:
+    I = diag(length(r:nrow(A)))
+    Q_minor = I - 1/t * (u %*% t(u))
+    Q_i  = diag(nrow(A))
+    Q_i[r:nrow(A),r:ncol(A)] = Q_minor
+    # And we apply the Householder reflection - we left multiply the entire A
+    A = round(Q_i %*% A,2)
+    psQ[(r+1):nrow(A), r] = round(u[2:length(u)]/t, 3)
+    Q = round(Q_i %*% Q,2)
+    tao[r] = t
+  }
+  DECOMPOSITION = list("Q"= t(Q), "R"= A, "PseudoQ"= psQ, 
+                       "compact form of Q (qr(A)$qr)" =((A*upper.tri(A,diag=T))+(psQ*lower.tri(psQ,diag=F))), 
+                       "rho"=rho, "tao"=tao, "Householder" = H_mat)
+  return(DECOMPOSITION)
+}
+
+(H = House(X))
+round(qr(X)$qr,2) # This is the compact form.
+round(qr.Q(qr(X)),2) # This gives the Q
+round(qr.qy(qr(X), diag(nrow(X))),2) # This also gives the Q - compare to...
+H$Q
+H$Householder
+hh
