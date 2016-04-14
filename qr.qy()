@@ -70,3 +70,169 @@ round(qr.qy(qr(X), diag(nrow(X))),2) # This also gives the Q - compare to...
 H$Q
 H$Householder
 hh
+
+######################################################################################################################################
+
+# Friday 3 September 2010
+
+
+# R can carry out all the calculations you will need in Stat 312/612
+# You do not need to memorize formulae.
+# You will need to learn what R is doing for you.
+
+
+
+
+
+
+
+y = c(1,4,2,3,-1)	# create a vector of length 5
+sqrt( sum(y * y) )	# the Euclidean length ||y||
+
+# a function to calculate Euclidean length of a vector:
+elength = function(z){ sqrt( sum(z*z) ) } 
+#Note:
+# > sqrt( sum(y * y) )
+# [1] 5.567764
+# > elength(y)
+# [1] 5.567764
+
+length(y)	# another length
+
+X = matrix( c(1,2,3,-4,-5,6,-7,8,-9,10,11,-12,-13,14,15), nrow=5 )	# Create a 5x3 matrix 
+X	# Here it is. 
+# Compare with
+# > print(X)
+
+
+# What does the next calculation do?
+# Hint: t() gives a transpose, %*% is matrix multiplication
+
+sqrt( diag( t(X) %*% X ) )
+# Compare with:
+X[,1]  # first column of X
+X[,1,drop=F] #
+elength( X[,1] )		
+
+# A puzzle: What is elength(X) calculating?
+# Compare with length(X).
+
+
+# What is the dimension of the subspace of R^5 spanned by the columns of X?
+qr(X)$rank
+
+
+# What do the next three lines demonstrate?
+z  = X[,1] + X[,2]
+XX = cbind(X,z)
+qr(XX)$rank
+
+# Save the QR-decomposition of X for further use
+# You will soon learn what XQR$qr contains
+XQR =  qr(X)
+names(XQR)
+XQR
+summary(XQR)	# Huh?
+?qr	# Ask for help about the qr() function.
+
+# These three matrices will prove interesting
+Q = qr.Q(XQR)	# columns provide onb for col space of X
+QQ = qr.Q(XQR,complete=T)	# onb for R^5
+R = qr.R(XQR)
+
+# What does the next line tell you about the columns of Q ?
+t(Q) %*% Q
+round( t(Q) %*% Q , 4)  # Maybe easier to see the pattern
+round(t(QQ) %*% QQ,5)	
+
+round(X - Q %*% R , 5) # Why is it called a QR decomposition?
+
+round(solve(R)  %*% R , 5) # What does solve(R) give?
+?backsolve		# Why is an upper triangular matrix easy to invert?
+
+# The columns of X and the columns of Q span the same 3 dimensional subspace of R^5
+X %*% solve(R) ; Q 
+
+##### LEAST SQUARES
+
+W = lsfit(X,y, intercept = FALSE)	# primitive way to do least squares
+
+W # What is going on?
+
+y 
+X %*% W$coef + W$resid 
+round(t(X) %*% W$resid , 5)
+
+
+
+Xlm = lm (y ~ X -1)		# The usual way to do a least squares fit
+
+names(Xlm) # What got calculated?
+summary(Xlm) # You will soon learn what all this output means
+
+# The following explains what XQR$qr contains.
+# It is probably not how R does the calculations. 
+
+R; XQR$qr[1:3,]  # Where was R hiding?  
+# cf. > qr.R
+
+# The functions qr.Q() and qr.qy() get the Q matrix.
+# Here is a less efficient way to do the same thing:
+hh = XQR$qr
+hh[row(hh) <= col(hh)] = 0 # discard upper triangle, which contains R
+diag(hh) = rho = XQR$qraux
+
+# The columns of hh are now the vectors Hi (i=1,2,3) for the Householder
+# reflections 
+# and 
+# rho contains 1/2*||Hi||^2, as you can check:
+# > apply(hh,2, function(x){sum(x*x)/2})
+
+
+# There must be a slick way of doing this with outer():
+HH = list()
+for ( ii in 1:3){
+	HH[[ii]] = diag(5) - hh[,ii] %*% t(hh[,ii])/rho[ii]
+}
+
+# Each element of HH is an orthogonal matrix:
+for( M in HH){
+	MM = round( t(M) %*% M, 5)
+	print(MM)
+}
+
+X1 = HH[[1]] %*% X
+print( round(X1,5) )
+
+X2 = HH[[2]] %*% X1
+print( round(X2,5) )
+
+X3 = HH[[3]] %*% X2
+print( round(X3,5) )
+
+cat( "Compare X3 with the R of the qr decomposition:\n")
+R
+
+# Compare with the following:
+
+library(DAAG)	# contains the pause() function
+showHouse = function(x=X,mm=HH){
+	print("Here is X:")
+	print(X)
+	pause()
+	
+	for (M in mm){
+		cat("Next Householder relection:\n")
+		print(round(M,2))
+		cat("\nQuestion: Which columns will it affect?\n\n")
+		pause()
+		
+		x = M %*% x
+		print("Effect of premultiplication by Householder:")
+		print(round(x,2))
+		cat("\n\n")
+		pause()
+	}
+	print( "Compare last matrix with the R of the qr decomposition:")
+	print(round(R,2))
+}
