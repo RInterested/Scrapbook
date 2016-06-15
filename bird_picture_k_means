@@ -1,0 +1,12 @@
+require(png)
+
+bird = readPNG('bird_small.png')
+
+dim(bird)
+bird = bird[,,1:3]
+dim(bird)
+is.array(bird)
+
+
+mat = apply(bird, 3, t)
+dim(mat)
