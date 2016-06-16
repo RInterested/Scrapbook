@@ -12,8 +12,8 @@ long_bird = apply(bird, 3, t)
 dim(long_bird); is.matrix(long_bird)
 
 temp = long_bird[sample(nrow(long_bird)),]
-# K centroids = 10
-k = 10
+# K centroids = 20
+k = 20
 initial_centroids = temp[1:k,]
 
 
@@ -80,7 +80,13 @@ compressed_bird = apply(long_bird, 3, t)
 dim(compressed_bird) = dim(long_bird)
 dim(compressed_bird)
 
-all.equal(bird, compressed_bird)
+is.array(compressed_bird)
+
+ones = matrix(1, 128, 128)
+
+compressed_bird = array(c(compressed_bird,ones), dim= c(128,128,4))
+dim(compressed_bird)
+is.array(compressed_bird)
 
 writePNG(compressed_bird,"birdie.png")
 
