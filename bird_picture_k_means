@@ -13,14 +13,14 @@ dim(long_bird); is.matrix(long_bird)
 
 temp = long_bird[sample(nrow(long_bird)),]
 # K centroids = 10
-k = 15
+k = 10
 initial_centroids = temp[1:k,]
 
 
 
 # Closest centroids:
 
-group = matrix(rep(0, nrow(z)), ncol=1)
+group = matrix(rep(0, nrow(long_bird)), ncol=1)
 for (i in 1:nrow(long_bird)){
   index = 0
   w = 10^10
@@ -46,26 +46,26 @@ for(i in 1:k){
 
 for(t in 1:10){
   
-closest = matrix(rep(0, nrow(z)), ncol=1)
-for (i in 1:nrow(long_bird)){
-  index = 0
-  w = 10^10
-  for (j in 1:k){
-    sum_sq = sum((long_bird[i, ] - new_centroids[j, ])^2)
-    if(sum_sq < w){
-      w = sum_sq
-      index = j
-    } 
+  closest = matrix(rep(0, nrow(long_bird)), ncol=1)
+  for (i in 1:nrow(long_bird)){
+    index = 0
+    w = 10^10
+    for (j in 1:k){
+      sum_sq = sum((long_bird[i, ] - new_centroids[j, ])^2)
+      if(sum_sq < w){
+        w = sum_sq
+        index = j
+      } 
+    }
+    closest[i] = index
   }
-  closest[i] = index
-}
-
-# Third iteration of centroids:
-
-new_centroids = matrix(rep(0, k*3), ncol=3)
-for(i in 1:k){
-  new_centroids[i,]=colMeans(long_bird[group==i,])
-}
+  
+  # Third iteration of centroids:
+  
+  new_centroids = matrix(rep(0, k*3), ncol=3)
+  for(i in 1:k){
+    new_centroids[i,]=colMeans(long_bird[group==i,])
+  }
 }
 
 
@@ -77,8 +77,10 @@ dim(long_bird)
 ### Reversing long_bird:
 dim(long_bird) = dim(bird)
 compressed_bird = apply(long_bird, 3, t)
+dim(compressed_bird) = dim(long_bird)
 dim(compressed_bird)
 
 all.equal(bird, compressed_bird)
 
 writePNG(compressed_bird,"birdie.png")
+
